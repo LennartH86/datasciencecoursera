@@ -19,10 +19,10 @@ The following transformations were done:
 A tidy data set is the result of the transformations. It includes for every subject and activity the mean for each variable.
 
 ## variables
-subject - numeric, for each individual participating in the study
+subject - numeric, for each individual participating in the study  
 activity - string, the activity the subject did according to the data
 
-the following variables are data from the the smartphone transformed as described above
+the following variables are data from the the smartphone transformed as described above  
 tBodyAcc-mean()-X          
 tBodyAcc-mean()-Y          
 tBodyAcc-mean()-Z          
@@ -53,10 +53,10 @@ fBodyGyro-mean()-X
 fBodyGyro-mean()-Y         
 fBodyGyro-mean()-Z         
 fBodyAccMag-mean()        
-fBodyBodyAccJerkMag-mean() 
-fBodyBodyGyroMag-mean()    
-fBodyBodyGyroJerkMag-mean()
-tBodyAcc-std()-X           
+fBodyBodyAccJerkMag-mean()  
+fBodyBodyGyroMag-mean()      
+fBodyBodyGyroJerkMag-mean()  
+tBodyAcc-std()-X             
 tBodyAcc-std()-Y           
 tBodyAcc-std()-Z           
 tGravityAcc-std()-X        
@@ -85,7 +85,7 @@ fBodyAccJerk-std()-Z
 fBodyGyro-std()-X         
 fBodyGyro-std()-Y          
 fBodyGyro-std()-Z          
-fBodyAccMag-std()          
-fBodyBodyAccJerkMag-std() 
-fBodyBodyGyroMag-std()
-fBodyBodyGyroJerkMag-std()
+fBodyAccMag-std()           
+fBodyBodyAccJerkMag-std()   
+fBodyBodyGyroMag-std()  
+fBodyBodyGyroJerkMag-std()  
