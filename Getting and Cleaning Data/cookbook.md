@@ -6,13 +6,13 @@ it also describes the variables created as the output of the transformations
 ## transformations
 
 The following transformations were done:
-1. the test and training data sets were load into R and the column names wre changed according to the features.txt
-2. the different tables for the test and training data sets are merged together
-3. the merged test and training tables are merged to one data set
-4. only the variables having mean() or std() in the name, the subject variable and the activity variable are left in the data set, every other variable is thrown out
-5. the activity variable is numeric, the activity_labels.txt contains desciptive names for these numbers, therefor the activity_labels.txt is used to replace the numbers in the activity variable with descripitve names
-6. the data set gets reshaped, with subject and activity as ids, the variables (mean and std) are changed from horizontal to vertical
-7. the reshaped data gets reshaped again, the variables are spread into horizontal but the mean for every variable within each subject and activity is caculatd this time
+* the test and training data sets were load into R and the column names wre changed according to the features.txt
+* the different tables for the test and training data sets are merged together
+* the merged test and training tables are merged to one data set
+* only the variables having mean() or std() in the name, the subject variable and the activity variable are left in the data set, every other variable is thrown out
+* the activity variable is numeric, the activity_labels.txt contains desciptive names for these numbers, therefor the activity_labels.txt is used to replace the numbers in the activity variable with descripitve names
+* the data set gets reshaped, with subject and activity as ids, the variables (mean and std) are changed from horizontal to vertical
+* the reshaped data gets reshaped again, the variables are spread into horizontal but the mean for every variable within each subject and activity is caculatd this time
 
 ## result data set
 
