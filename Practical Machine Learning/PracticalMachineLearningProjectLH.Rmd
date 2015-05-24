@@ -1,0 +1,129 @@
+# Practical Machine Learning: Project
+
+Welcome to my write up of the Practical Machine Learning Project. This time we would like to build a algorithm to predict the manner in which participants did excercises which thy tracked with their Jawbone Up, Nike FuelBand, Fitbit or other divices. While building the algorithm I will describe how I build the altorithm, how I use cross validation, what I think the expected out of sample error is and why I made the choices I made.
+
+## Data Preparation
+Let's start with the data. We will download and prepare it a little bit. The data is provided devided in training and test data sets.
+
+```{r}
+require(data.table)
+setInternet2(TRUE)
+url <- "https://d396qusza40orc.cloudfront.net/predmachlearn/pml-training.csv"
+trainingSet <- fread(url)
+url <- "https://d396qusza40orc.cloudfront.net/predmachlearn/pml-testing.csv"
+testSet <- fread(url)
+```
+
+In another step we will exclude any variables from the model and training dataset which do have NA values.
+```{r}
+coloumsWhereNAsAre <- sapply(testSet, function (x) any(is.na(x) | x == ""))
+coloumsWhereNoNAsAre <- !coloumsWhereNAsAre & grepl("belt|[^(fore)]arm|dumbbell|forearm", names(coloumsWhereNAsAre))
+predCandidates <- names(coloumsWhereNAsAre)[coloumsWhereNoNAsAre]
+#predCandidates
+
+predictors <- c("classe", predCandidates)
+trainingSet <- trainingSet[, predictors, with=FALSE]
+#dim(trainingSet)
+#names(trainingSet)
+```
+
+In a next step we need to make the classes variable a factor variable and we will split the training dataset again into a training and test dataset.
+
+```{r}
+trainingSet <- trainingSet[, classe := factor(trainingSet[, classe])]
+#trainingSet[, .N, classe]
+
+require(caret)
+set.seed(1337)
+toIncludeInTrainingSet <- createDataPartition(trainingSet$classe, p=0.6)
+trainingSetTrain <- trainingSet[toIncludeInTrainingSet[[1]]]
+trainingSetTest <- trainingSet[-toIncludeInTrainingSet[[1]]]
+```
+
+We will center and scale the left predictors in the training dataset, apply the centering and scaling to the test dataset and check vor variables with zero variance.
+
+```{r}
+X <- trainingSetTrain[, predCandidates, with=FALSE]
+preProc <- preProcess(X)
+preProc
+XCS <- predict(preProc, X)
+trainingSetTrainCS <- data.table(data.frame(classe = trainingSetTrain[, classe], XCS))
+
+X <- trainingSetTest[, predCandidates, with=FALSE]
+XCS <- predict(preProc, X)
+trainingSetTestCS <- data.table(data.frame(classe = trainingSetTest[, classe], XCS))
+
+nzv <- nearZeroVar(trainingSetTrainCS, saveMetrics=TRUE)
+if (any(nzv$nzv)) nzv else message("No variables with near zero variance")
+```
+
+## Model building
+
+We will use RandomForrest and parallel processing to find the best fitting predictors in a decent amount of time. 
+
+```{r}
+require(parallel)
+require(doParallel)
+cl <- makeCluster(detectCores() - 1)
+registerDoParallel(cl)
+
+require(randomForest)
+require(e1071)
+ctrl <- trainControl(classProbs=TRUE,
+                     savePredictions=TRUE,
+                     allowParallel=TRUE)
+
+method <- "rf"
+system.time(trainingModel <- train(classe ~ ., data=trainingSetTrainCS, method=method))
+
+stopCluster(cl)
+```
+
+## Model Evaluation
+
+To evaluate the model we will implement the model on the training test set to get the out of sample error. An error rate of about 3-4% or below would be pretty good.
+
+```{r}
+prediction <- predict(trainingModel, trainingSetTrainCS)
+confusionMatrix(prediction, trainingSetTrainCS[, classe])
+
+prediction <- predict(trainingModel, trainingSetTestCS)
+confusionMatrix(prediction, trainingSetTestCS[, classe])
+
+varImp(trainingModel)
+trainingModel$finalModel
+
+save(trainingModel, file="trainingModel.RData")
+```
+
+## Test Data Assesment
+
+In the final step we will predict the classes of the 20 test datasets.
+
+```{r}
+load(file="trainingModel.RData", verbose=TRUE)
+
+testSetCS <- predict(preProc, testSet[, predCandidates, with=FALSE])
+prediction <- predict(trainingModel, testSetCS)
+testSet <- cbind(prediction , testSet)
+subset(testSet, select=names(testSet)[grep("belt|[^(fore)]arm|dumbbell|forearm", names(testSet), invert=TRUE)])
+```
+
+And finally the submission to Coursera.
+
+```{r}
+pml_write_files = function(x){
+  n = length(x)
+  path <- "P:/"
+  for(i in 1:n){
+    filename = paste0("problem_id_",i,".txt")
+    write.table(x[i],file=file.path(path, filename),quote=FALSE,row.names=FALSE,col.names=FALSE)
+  }
+}
+pml_write_files(lapply(prediction, as.character))
+```
+
+Thanks a lot for reading.
+
+All the best,
+Lennart
